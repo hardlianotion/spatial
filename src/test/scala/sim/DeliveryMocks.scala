@@ -1,4 +1,4 @@
-package timeslots
+package sim
 
 import com.uber.h3core.util.GeoCoord
 import java.time.{Duration, Instant}
@@ -8,7 +8,7 @@ import scala.collection.mutable.{Set, Map as MutableMap}
 import scala.language.postfixOps
 
 import zio.prelude.NonEmptyList as NEL
-import timeslots.hex.{H3, H3Tree, h3Random, h3RandomInHex}
+import sim.hex.{H3, H3Tree, h3Random, h3RandomInHex}
 
 
 object DeliveryMocks:
@@ -23,6 +23,4 @@ object DeliveryMocks:
   val locationsInNigeria = (1 to 10).map (_ => h3RandomInHex (josZoo, 13))
 
 object RegionMocks:
-  import timeslots.DeliveryMocks.*
-
-
+  import sim.DeliveryMocks.*

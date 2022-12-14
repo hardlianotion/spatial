@@ -1,4 +1,4 @@
-package timeslots.math
+package sim.math
 
 import scala.language.implicitConversions
 

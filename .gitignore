@@ -4,3 +4,4 @@ project/
 .bsp/
 .idea/
 .metals/
+.DS_Store

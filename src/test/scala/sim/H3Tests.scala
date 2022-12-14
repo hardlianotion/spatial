@@ -1,10 +1,10 @@
-package timeslots.hex
+package sim.hex
 
 import org.scalatest._
 import flatspec._
 import matchers._
 
-import timeslots.DeliveryMocks.locationsInTree
+import sim.DeliveryMocks.locationsInTree
 
 
 // FIXME - a bit more organisation into coherent sections

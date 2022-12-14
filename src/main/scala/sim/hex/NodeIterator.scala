@@ -1,4 +1,4 @@
-package timeslots.hex
+package sim.hex
 
 
 /**

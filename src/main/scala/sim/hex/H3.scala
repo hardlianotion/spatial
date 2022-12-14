@@ -1,4 +1,4 @@
-package timeslots.hex
+package sim.hex
 
 import com.uber.h3core.{H3Core, LengthUnit}
 

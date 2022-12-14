@@ -1,9 +1,9 @@
-package timeslots.hex
+package sim.hex
 
 import scala.annotation.tailrec
 
-import timeslots.math.Aggregable
-import timeslots.hex.contains as h3Contains
+import sim.math.Aggregable
+import sim.hex.contains as h3Contains
 
 
 sealed trait TreeNode [T]:
