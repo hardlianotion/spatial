@@ -58,14 +58,13 @@ transparent inline def h3CreateCellIndex (res: Int, baseCell: Int, index: Long):
  * @param res - cell resolution.  Takes values between 0-15.
  * @param baseCell - which of the 121 base cells is specified.
  * @param res2LocalIndexes - A map containing resolution mapping to local indexes, missing resolutions will be replaced with 0s
- * @return
+ * @retun
  */
 transparent inline def h3CreateCellIndex (res: Int, baseCell: Int, res2LocalIndexes: Map[Int, Int]): H3 =
-  var index = res2LocalIndexes.foldLeft(0L) { case (acc, (res, localIdx)) =>
+  val index = res2LocalIndexes.foldLeft(0L) { case (acc, (res, localIdx)) =>
     acc | globalIndexPart (localIdx, res)
   }
-  index = h3TruncateToRes(index, res)
-  h3CreateCellIndex(res, baseCell, index)
+  h3CreateCellIndex(res, baseCell, h3TruncateToRes (index, res))
 
 private transparent inline def generateValidH3Base (fromRes: Int, toRes: Int): H3 =
   ((h3MaxRes - toRes) until (h3MaxRes - fromRes))
@@ -113,8 +112,8 @@ transparent inline def h3TruncateToRes (index: H3, res: Int): H3 =
 /**
  * zeroes all indices higher than res in the index.
  * Note - this specifies the centre point for the cell represented by h3TruncateToRes (index, res)
- * @param index
- * @param res
+ * @param index - index for the cell input
+ * @param res - resolution of the cell for which we compute a centre.
  * @return
  */
 transparent inline def h3ZeroToRes (index: H3, res: Int): H3 =
@@ -146,7 +145,7 @@ transparent inline def unsafeH3RandomInHex (baseHex: H3, res: Int): H3 =
 
 /**
  * h3BinaryOnes - produces 2^n - 1 or n ones in binary
- * @param n \in {0, ..., 63}
+ * @param n \in {0, ..., 63} - number of ones to produce.
  * @return
  */
 transparent inline def h3BinaryOnes (n: Int): Long =
