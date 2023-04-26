@@ -57,14 +57,13 @@ transparent inline def h3CreateCellIndex (res: Int, baseCell: Int, index: Long):
  * @param res - cell resolution.  Takes values between 0-15.
  * @param baseCell - which of the 121 base cells is specified.
  * @param res2LocalIndexes - A map containing resolution mapping to local indexes, missing resolutions will be replaced with 0s
- * @retun
+ * @return
  */
-@tailrec
-transparent inline def h3CreateCellIndex(res: Int, baseCell: Int, res2LocalIndexes: Map[Int, Int]): H3 =
+transparent inline def h3CreateCellIndex (res: Int, baseCell: Int, res2LocalIndexes: Map[Int, Int]): H3 =
   val index = res2LocalIndexes.foldLeft(0L) { case (acc, (res, localIdx)) =>
     acc | globalIndexPart (localIdx, res)
   }
-  h3CreateCellIndex(res, baseCell, h3TruncateToRes (index, res))
+  h3CreateCellIndex (res, baseCell, h3TruncateToRes (index, res))
 
 private transparent inline def generateValidH3Base (fromRes: Int, toRes: Int): H3 =
   ((h3MaxRes - toRes) until (h3MaxRes - fromRes))
