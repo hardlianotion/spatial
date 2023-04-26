@@ -32,7 +32,6 @@ def h3ExplainAddress (index: H3): String =
   val result =
     (0 to resolution)
       .foldLeft (root) ((agg, res) => s"$agg ${localIndex (index, res)}")
-      //.foldLeft (root) ((agg, res) => s"$agg level $res = ${localIndex (index, res)}")
 
   s"$result]"
 
@@ -60,7 +59,8 @@ transparent inline def h3CreateCellIndex (res: Int, baseCell: Int, index: Long):
  * @param res2LocalIndexes - A map containing resolution mapping to local indexes, missing resolutions will be replaced with 0s
  * @retun
  */
-transparent inline def h3CreateCellIndex (res: Int, baseCell: Int, res2LocalIndexes: Map[Int, Int]): H3 =
+@tailrec
+transparent inline def h3CreateCellIndex(res: Int, baseCell: Int, res2LocalIndexes: Map[Int, Int]): H3 =
   val index = res2LocalIndexes.foldLeft(0L) { case (acc, (res, localIdx)) =>
     acc | globalIndexPart (localIdx, res)
   }
@@ -247,7 +247,7 @@ transparent inline def distance (lhs: H3, rhs: H3, unit: LengthUnit): Double =
  * @return - kilometres between lhs and rhs
  */
 def distanceInKm (lhs: H3, rhs: H3): Double =
-  instance.pointDist (instance.h3ToGeo (lhs), instance.h3ToGeo (rhs), LengthUnit.km)
+  distance (lhs, rhs, LengthUnit.km)
 
 /**
  * distanceInM - linear distance in m between lhs and rhs
@@ -256,7 +256,7 @@ def distanceInKm (lhs: H3, rhs: H3): Double =
  * @return - metres between lhs and rhs
  */
 def distanceInM (lhs: H3, rhs: H3): Double =
-  instance.pointDist (instance.h3ToGeo (lhs), instance.h3ToGeo (rhs), LengthUnit.m)
+  distance (lhs, rhs, LengthUnit.m)
 
 /**
  * driveTimeInS - drive time in seconds between from and to
@@ -266,20 +266,18 @@ def distanceInM (lhs: H3, rhs: H3): Double =
  * @return - time in seconds
  */
 def driveTimeInS (speedInMpS: Double, from: H3, to: H3): Long =
-  //println(s"from=$from, to = $to")
-  //println (s"driveTime = ${distanceInM (from, to).toLong / speedInMpS.toLong}, distance = ${distanceInM (from, to)}, speed = ${speedInMpS}")
   distanceInM (from, to).toLong / speedInMpS.toLong
 
-//
-///**
-// * marginalTime - calculates the difference in travel time between
-// *                1. begin -> end and
-// *                2. begin -> insert + insert -> end?
-// * @param begin - valid H3 location
-// * @param end - valid H3 location
-// * @param insert - valid H3 location
-// * @param speedInMpS - speed in metres per second
-// * @return - marginal time in seconds
-// */
-//def marginalTimeInS (begin: H3, end: H3, insert: H3, speedInMpS: Double): Long =
-//  driveTimeInS (speedInMpS, begin, insert) + driveTimeInS (speedInMpS, insert, end) - driveTimeInS (speedInMpS, begin, end)
+
+/**
+ * marginalTime - calculates the difference in travel time between
+ *                1. begin -> end and
+ *                2. begin -> insert + insert -> end?
+ * @param begin - valid H3 location
+ * @param end - valid H3 location
+ * @param insert - valid H3 location
+ * @param speedInMpS - speed in metres per second
+ * @return - marginal time in seconds
+ */
+def marginalTimeInS (begin: H3, end: H3, insert: H3, speedInMpS: Double): Long =
+  driveTimeInS (speedInMpS, begin, insert) + driveTimeInS (speedInMpS, insert, end) - driveTimeInS (speedInMpS, begin, end)
