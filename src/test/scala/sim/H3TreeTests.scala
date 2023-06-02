@@ -85,9 +85,9 @@ class H3TreeTests extends AnyFlatSpec with should.Matchers:
   val rootIdx = h3CreateCellIndex (15, 28, Map(11 -> 3, 13 -> 1))
 
   "A tree level" should "accumulate all values accumulate by its sub-trees" in {
-    updates.forall (x => instance.h3IsValid (x.idx)) should be (true)
+    updates.forall (x => instance.isValidCell (x.idx)) should be (true)
 
-    instance.h3IsValid (rootIdx) should be (true)
+    instance.isValidCell (rootIdx) should be (true)
 
     val maybeTree = H3Tree.empty [Int, Int] (12, 15, rootIdx)
 
@@ -97,7 +97,7 @@ class H3TreeTests extends AnyFlatSpec with should.Matchers:
       tree <- maybeTree
       item <- updates
     do
-      instance.h3IsValid (item.idx) should be (true)
+      instance.isValidCell (item.idx) should be (true)
       H3Tree.get (tree, item.idx, 0) should be (Some(0))
       H3Tree.get (tree, item.idx, 1) should be (Some(0))
       H3Tree.get (tree, item.idx, 2) should be (Some(0))
@@ -121,9 +121,9 @@ class H3TreeTests extends AnyFlatSpec with should.Matchers:
   }
 
   "A tree 'shifted' from another by n degrees" should "has node at level y corresponding to n + y in the lower tree" in {
-    updates.forall (x => instance.h3IsValid (x.idx)) should be (true)
+    updates.forall (x => instance.isValidCell (x.idx)) should be (true)
 
-    instance.h3IsValid (rootIdx) should be (true)
+    instance.isValidCell (rootIdx) should be (true)
 
     // NOTE lowerTree is shifted 2 'down' from higherTree
     val lowerMaybeTree = H3Tree.empty [Int, Int] (12, 15, rootIdx)
@@ -161,7 +161,7 @@ class H3TreeTests extends AnyFlatSpec with should.Matchers:
   val anotherRootIdx = h3CreateCellIndex (15, 28, Map(11 -> 3, 12 -> 1, 15 -> 1))
 
   "A tree that cannot contain an index" should "not be able to hold the index data" in {
-    instance.h3IsValid (anotherRootIdx) should be (true)
+    instance.isValidCell (anotherRootIdx) should be (true)
 
     val maybeTree = H3Tree.empty [Int, Int] (12, 15, anotherRootIdx)
 
@@ -211,7 +211,7 @@ class H3TreeTests extends AnyFlatSpec with should.Matchers:
     //        identical indices down to index 12, which is equal to maybeTree.rootRes
     val canInsert = h3CreateCellIndex (14, 28, Map(11 -> 3, 12 -> 1, 14 -> 3))
 
-    instance.h3IsValid (canInsert) should be (true)
+    instance.isValidCell (canInsert) should be (true)
 
     for
       tree <- maybeTree

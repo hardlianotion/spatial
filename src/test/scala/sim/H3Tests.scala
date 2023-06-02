@@ -1,9 +1,10 @@
-package sim.hex
+package sim
 
-import org.scalatest._
-import flatspec._
-import matchers._
+import org.scalatest.*
+import flatspec.*
+import matchers.*
 
+import sim.hex.*
 import sim.DeliveryMocks.locationsInTree
 
 
@@ -35,11 +36,11 @@ class H3Tests extends AnyFlatSpec with should.Matchers:
   }
 
   "15" should "contain 12" in {
-    assert (contains ((14L << 52) + 15L, 12) == true)
+    assert (contains ((14L << 52) + 15L, 12))
   }
 
   "8f754e64992d6d8" should "be contained in hex 8e754e64992d6df" in {
-    assert (contains (java.lang.Long.valueOf ("8e754e64992d6df", 16), java.lang.Long.valueOf ("8f754e64992d6d8", 16)) == true)
+    assert (contains (java.lang.Long.valueOf ("8e754e64992d6df", 16), java.lang.Long.valueOf ("8f754e64992d6d8", 16)))
   }
 
   "3L" should "localise to 3 at level 15" in {
@@ -65,14 +66,14 @@ class H3Tests extends AnyFlatSpec with should.Matchers:
   "generated h3 points" should "be valid" in {
     val randomH3 = unsafeH3Random (28, 0, 13)
 
-    instance.h3IsValid (randomH3) should be (true)
+    instance.isValidCell (randomH3) should be (true)
   }
 
   "h3TruncateToLevel" should "return a level-truncated h3 with local index 0" in {
     val index = locationsInTree (0)
     val truncIndex = h3TruncateToRes (index, 5)
 
-    instance.h3IsValid (index) should be (true)
+    instance.isValidCell (index) should be (true)
     h3Resolution (truncIndex) should be (5)
   }
 

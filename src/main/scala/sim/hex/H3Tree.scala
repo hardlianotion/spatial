@@ -107,7 +107,7 @@ object H3Tree:
     // NOTE address resolution must be greater than leaf level in order for it to represent root address in the tree.
     if rootRes < 0 || leafRes < 0 || leafRes > h3Resolution (address) then
       Left (H3TreeError.CreationError (rootRes, leafRes, h3Resolution (address)))
-    else if !instance.h3IsValid (address) then
+    else if !instance.isValidCell (address) then
       Left (H3TreeError.BadAddressError (address))
     else
       Right (H3Tree[T] (address, leafRes - H3Tree.depth (root), leafRes, root))
@@ -130,7 +130,7 @@ object H3Tree:
     // NOTE address resolution must be greater than leaf level in order for it to represent root address in the tree.
     if rootRes < 0 || leafRes < 0  || leafRes > h3Resolution (address) then
       Left (H3TreeError.CreationError (rootRes, leafRes, h3Resolution (address)))
-    else if !instance.h3IsValid (address) then
+    else if !instance.isValidCell (address) then
       Left (H3TreeError.BadAddressError (address))
     else
       def impl (depth: Int): TreeNode [A] =
@@ -176,7 +176,7 @@ object H3Tree:
   private [hex] def subNode [T] (tree: H3Tree [T], index: H3, level: Int): Option [TreeNode [T]] =
     val resolution = tree.rootRes + level
     if contains (tree, index) && resolution >= 0 && resolution <= h3MaxRes then
-      val node = processNodesToRes (tree.root, tree.rootRes, index, resolution) (_ => ())
+      val node = processNodesToRes [T] (_ => ()) (tree.root, tree.rootRes, index, resolution)
       Some (node)
     else
       None
@@ -194,14 +194,14 @@ object H3Tree:
    * @return - the sub-node represented by index at level
    */
   @tailrec
-  private def processNodesToRes [T] (currentNode: TreeNode [T], currentRes: Int, index: H3, targetRes: Int) (process: TreeNode [T] => Unit): TreeNode [T] =
+  private def processNodesToRes [T] (process: TreeNode[T] => Unit) (currentNode: TreeNode[T], currentRes: Int, index: H3, targetRes: Int): TreeNode[T] =
     currentNode match
       case node @ Node (data, children) =>
         process (node)
         if targetRes != currentRes then
           val childLocalIndex = localIndex (index, currentRes + 1)
           //println(s"${h3ExplainAddress(index)}, child local $childLocalIndex.  current res = $currentRes, target = $targetRes")
-          processNodesToRes (children (childLocalIndex), currentRes + 1, index, targetRes) (process)
+          processNodesToRes (process) (children (childLocalIndex), currentRes + 1, index, targetRes)
         else
           node
       case leaf @ Leaf (data) =>
@@ -272,7 +272,7 @@ object H3Tree:
   def accumulate [A, T] (tree: H3Tree [A], index: H3, level: Int, data: T) (using agg: Aggregable [A, T]): Boolean =
     val resolution = tree.rootRes + level
     if contains (tree, index) && resolution >= tree.leafRes && resolution <= h3MaxRes then
-      processNodesToRes (tree.root, tree.rootRes, index, resolution) (node => node.setData (agg.add (node.data, data)))
+      processNodesToRes [A] (node => node.setData (agg.add (node.data, data))) (tree.root, tree.rootRes, index, resolution)
       true
     else
       false

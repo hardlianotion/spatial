@@ -1,6 +1,6 @@
 package sim
 
-import com.uber.h3core.util.GeoCoord
+import com.uber.h3core.util.LatLng
 import java.time.{Duration, Instant}
 
 import scala.collection.immutable.SortedMap
@@ -19,7 +19,7 @@ object DeliveryMocks:
   val locationsInTree = (1 to 10).map (_ => h3RandomInHex (testHubAddress, testTreeLevel))
 
   // NOTE - these are generated to be outside any sensible tree containing testHubAddress
-  val josZoo = hex.instance.geoToH3 (9.920420123563392, 8.887754970466519, 15)
+  val josZoo = hex.instance.latLngToCell (9.920420123563392, 8.887754970466519, 15)
   val locationsInNigeria = (1 to 10).map (_ => h3RandomInHex (josZoo, 13))
 
 object RegionMocks:

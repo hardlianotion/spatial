@@ -10,6 +10,7 @@ lazy val instance: H3Core = H3Core.newInstance
 
 type H3 = Long
 inline val h3Null = 0L
+inline val h3MinRes = 0
 inline val h3MaxRes = 15
 
 private inline val h3AllOnes = -1L
@@ -30,7 +31,7 @@ def h3ExplainAddress (index: H3): String =
   val root = s"Resolution = ${h3Resolution (index)} ["
   val resolution = h3Resolution (index)
   val result =
-    (0 to resolution)
+    (h3MinRes to resolution)
       .foldLeft (root) ((agg, res) => s"$agg ${localIndex (index, res)}")
 
   s"$result]"
@@ -42,7 +43,7 @@ def h3InBaseTruncate (index: H3): Long =
  * H3 index mode is hardcoded to 1 presently, as we have no applications
  * other than containment.
  *
- * @param res - cell resolution.  Takes values between 0-15.
+ * @param res - cell resolution.  Takes values between 0-h3MaxRes.
  * @param baseCell - which of the 121 base cells is specified.
  * @param index - indexing to precisely locate a position within the H3 hierarchy.
  * @return
@@ -54,21 +55,21 @@ transparent inline def h3CreateCellIndex (res: Int, baseCell: Int, index: Long):
  * H3 index mode is hardcoded to 1 presently, as we have no applications
  * other than containment.
  *
- * @param res - cell resolution.  Takes values between 0-15.
+ * @param res - cell resolution.  Takes values between 0-h3MaxRes.
  * @param baseCell - which of the 121 base cells is specified.
  * @param res2LocalIndexes - A map containing resolution mapping to local indexes, missing resolutions will be replaced with 0s
  * @return
  */
 transparent inline def h3CreateCellIndex (res: Int, baseCell: Int, res2LocalIndexes: Map[Int, Int]): H3 =
-  val index = res2LocalIndexes.foldLeft(0L) { case (acc, (res, localIdx)) =>
+  val index = res2LocalIndexes.foldLeft (h3Null) { case (acc, (res, localIdx)) =>
     acc | globalIndexPart (localIdx, res)
   }
   h3CreateCellIndex (res, baseCell, h3TruncateToRes (index, res))
 
 private transparent inline def generateValidH3Base (fromRes: Int, toRes: Int): H3 =
   ((h3MaxRes - toRes) until (h3MaxRes - fromRes))
-    .foldLeft (0L) { (agg, rhs) =>
-      agg  | (Random.between (0L, 7L) << (3 * rhs))
+    .foldLeft (h3Null) { (agg, rhs) =>
+      agg  | (Random.between (h3Zero, 7L) << (3 * rhs))
     } | h3BitCellMask (toRes, 3)
 
 /**
@@ -77,7 +78,7 @@ private transparent inline def generateValidH3Base (fromRes: Int, toRes: Int): H
  * for instance
  * generate random hex with resolution dependencies
  * FIXME - there are some "special" properties that you may not want:
- *  - every resolution below fromRes that is not randomised left out defaults to 0 (centre hex)
+ *  - every resolution below fromRes that is not randomised left out defaults to h3MinRes0 (centre hex)
  *  - every resolution above toRes defaults to not used
  *  Will fix this when usage needs are clearer.  In meantime, there is also h3RandomInHex
  *  to consider
@@ -88,10 +89,10 @@ private transparent inline def generateValidH3Base (fromRes: Int, toRes: Int): H
  * @return
  */
 transparent inline def h3Random (baseCell: Int, fromRes: Int, toRes: Int): H3 =
-  var index = 0L
+  var index = h3Null
   while
     index = unsafeH3Random (baseCell, fromRes, toRes)
-    !instance.h3IsValid (index)
+    !instance.isValidCell (index)
   do
     index
   index
@@ -102,7 +103,7 @@ transparent inline def unsafeH3Random (baseCell: Int, fromRes: Int, toRes: Int):
 /**
  * truncates an index to a given resolution.
  * @param index - input index with h3 format
- * @param res - resolution, assumed to be in {0, ..., 15}.  This is not protected in any way.
+ * @param res - resolution, assumed to be in {h3MinRes, ..., h3MaxRes}.  This is not protected in any way.
  * @return
  */
 transparent inline def h3TruncateToRes (index: H3, res: Int): H3 =
@@ -116,7 +117,7 @@ transparent inline def h3TruncateToRes (index: H3, res: Int): H3 =
  * @return
  */
 transparent inline def h3ZeroToRes (index: H3, res: Int): H3 =
-  (index >> 3*(h3MaxRes - res)) << 3*(h3MaxRes - res)
+  (index >> 3 * (h3MaxRes - res)) << 3 * (h3MaxRes - res)
 /**
  * generate random positions that are in the same hex as the centroid of the
  * resolution base hexagon containing base.
@@ -124,10 +125,10 @@ transparent inline def h3ZeroToRes (index: H3, res: Int): H3 =
  * @return - a random hex location from within hex base
  */
 def h3RandomInHex (base: H3, res: Int): H3 =
-  var index = 0L
+  var index = h3Null
   while
     index = unsafeH3RandomInHex (base, res)
-    !instance.h3IsValid (index)
+    !instance.isValidCell (index)
   do
     index
   index
@@ -139,7 +140,6 @@ def h3RandomInHex (base: H3, res: Int): H3 =
  * @return
  */
 transparent inline def unsafeH3RandomInHex (baseHex: H3, res: Int): H3 =
-  //println (s"res = $res, base: = ${h3ExplainAddress (baseHex)}")
   h3ZeroToRes (baseHex, res)  | generateValidH3Base (res, h3MaxRes)
 
 /**
@@ -157,7 +157,7 @@ transparent inline def h3BinaryOnes (n: Int): Long =
  * @return
  */
 transparent inline def h3BitCellMask (res: Int, numBits: Int): Long =
-  h3BinaryOnes ((15 - res) * numBits)
+  h3BinaryOnes ((h3MaxRes - res) * numBits)
 
 /**
  * h3ZeroBitCell - zero out parts of a H3 index
@@ -178,7 +178,7 @@ transparent inline def h3Resolution (index: H3): Int =
 
 /**
  * h3TreeNodeMask - mask out the index coordinate at the requested resolution
- * @param res - resolution between (between 1 - 15)
+ * @param res - resolution between (between 1 - h3MaxRes)
  * @return
  */
 transparent inline def h3TreeNodeMask (res: Int): Long =
@@ -192,12 +192,12 @@ transparent inline def h3TreeNodeMask (res: Int): Long =
  * @return - minimum resolution index at centre of cell.  Considered a point.
  */
 inline def h3Centre (cell: H3, res: Int): H3 =
-  instance.h3ToCenterChild (cell, res)
+  instance.cellToCenterChild (cell, res)
 
 /**
  * localIndex - get the local coordinate of index at res
  * @param index - the h3 index
- * @param res - the resolution required (between 1 - 15)
+ * @param res - the resolution required (between 1 - h3MaxRes)
  * @return - the local index
  */
 transparent inline def localIndex (index: H3, res: Int): Int =
@@ -206,7 +206,7 @@ transparent inline def localIndex (index: H3, res: Int): Int =
 /**
  * get the global part of H3 index at res
  * @param localIndex - local index value
- * @param res - the resolution required (between 1 - 15)
+ * @param res - the resolution required (between 1 - h3MaxRes)
  * @return - the global part of H3 index
  */
 transparent inline def globalIndexPart (localIndex: Int, res: Int): Long =
@@ -237,7 +237,7 @@ transparent inline def contains (hex: H3, location: H3): Boolean =
  * @return number of units between lhs and rhs
  */
 transparent inline def distance (lhs: H3, rhs: H3, unit: LengthUnit): Double =
-  instance.pointDist (instance.h3ToGeo (lhs), instance.h3ToGeo (rhs), unit)
+  instance.greatCircleDistance (instance.cellToLatLng (lhs), instance.cellToLatLng (rhs), unit)
 
 /**
  * distanceInKm - linear distance in km between lhs and rhs
