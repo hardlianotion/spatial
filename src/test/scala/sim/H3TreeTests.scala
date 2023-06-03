@@ -9,7 +9,7 @@ import org.scalatest.matchers.should
 
 
 class H3TreeTests extends AnyFlatSpec with should.Matchers:
-  val root = h3CreateCellIndex (13, 0, Map(13 -> 6))
+  val root = h3CreateCellIndex (13, 0, Map (13 -> 6))
 
   "A tree that is a leaf" should "have depth 0" in {
     val maybeTree = H3Tree.fromRoot (root, 0, Leaf (2))
@@ -65,8 +65,8 @@ class H3TreeTests extends AnyFlatSpec with should.Matchers:
       _ = H3Tree.set (tree, updatedIdx, 1, 1)
       updated = H3Tree.get (tree, updatedIdx, 1)
     do
-      initial should be (Some(0))
-      updated should be (Some(1))
+      initial should be (Some (0))
+      updated should be (Some (1))
       H3Tree.get (tree, updatedIdx, 0) should be (Some(0))
       H3Tree.get (tree, updatedIdx, 2) should be (Some(0))
       H3Tree.get (tree, siblingIdx, 1) should be (Some(0))
@@ -98,9 +98,9 @@ class H3TreeTests extends AnyFlatSpec with should.Matchers:
       item <- updates
     do
       instance.isValidCell (item.idx) should be (true)
-      H3Tree.get (tree, item.idx, 0) should be (Some(0))
-      H3Tree.get (tree, item.idx, 1) should be (Some(0))
-      H3Tree.get (tree, item.idx, 2) should be (Some(0))
+      H3Tree.get (tree, item.idx, 0) should be (Some (0))
+      H3Tree.get (tree, item.idx, 1) should be (Some (0))
+      H3Tree.get (tree, item.idx, 2) should be (Some (0))
 
     // let's update the tree and check it
     for
@@ -108,16 +108,16 @@ class H3TreeTests extends AnyFlatSpec with should.Matchers:
       result <- updates.map (x => H3Tree.accumulate (tree, x.idx, x.data))
     do
       result should be (true)
-      H3Tree.get (tree, updates (0).idx, 3) should be (Some(1))
-      H3Tree.get (tree, updates (1).idx, 3) should be (Some(10))
-      H3Tree.get (tree, updates (2).idx, 3) should be (Some(100))
-      H3Tree.get (tree, updates (3).idx, 3) should be (Some(1000))
-      H3Tree.get (tree, updates (0).idx, 2) should be (Some(11))
-      H3Tree.get (tree, updates (1).idx, 2) should be (Some(11))
-      H3Tree.get (tree, updates (2).idx, 2) should be (Some(100))
-      H3Tree.get (tree, updates (3).idx, 2) should be (Some(1000))
-      H3Tree.get (tree, updates (0).idx, 0) should be (Some(1111))
-      H3Tree.get (tree, updates (3).idx, 0) should be (Some(1111))
+      H3Tree.get (tree, updates (0).idx, 3) should be (Some (1))
+      H3Tree.get (tree, updates (1).idx, 3) should be (Some (10))
+      H3Tree.get (tree, updates (2).idx, 3) should be (Some (100))
+      H3Tree.get (tree, updates (3).idx, 3) should be (Some (1000))
+      H3Tree.get (tree, updates (0).idx, 2) should be (Some (11))
+      H3Tree.get (tree, updates (1).idx, 2) should be (Some (11))
+      H3Tree.get (tree, updates (2).idx, 2) should be (Some (100))
+      H3Tree.get (tree, updates (3).idx, 2) should be (Some (1000))
+      H3Tree.get (tree, updates (0).idx, 0) should be (Some (1111))
+      H3Tree.get (tree, updates (3).idx, 0) should be (Some (1111))
   }
 
   "A tree 'shifted' from another by n degrees" should "has node at level y corresponding to n + y in the lower tree" in {
@@ -151,8 +151,8 @@ class H3TreeTests extends AnyFlatSpec with should.Matchers:
       higherResult should be (true)
 
       // NOTE which means the results compared should be the same
-      lowerTest1 should be (Some(1111))
-      lowerTest2 should be (Some(1111))
+      lowerTest1 should be (Some (1111))
+      lowerTest2 should be (Some (1111))
       lowerTest1 should be (higherTest1)
       lowerTest2 should be (higherTest2)
   }
@@ -218,11 +218,11 @@ class H3TreeTests extends AnyFlatSpec with should.Matchers:
       result = H3Tree.accumulate (tree, canInsert, 5)
     do
       result should be (true)
-      H3Tree.get (tree, canInsert, 0) should be (Some(5))
-      H3Tree.get (tree, canInsert, 1) should be (Some(5))
-      H3Tree.get (tree, canInsert, 2) should be (Some(5))
+      H3Tree.get (tree, canInsert, 0) should be (Some (5))
+      H3Tree.get (tree, canInsert, 1) should be (Some (5))
+      H3Tree.get (tree, canInsert, 2) should be (Some (5))
       // NOTE get at the "natural" level also works.
-      H3Tree.get (tree, canInsert) should be (Some(5))
+      H3Tree.get (tree, canInsert) should be (Some (5))
   }
 
   "Constructing trees with data" should "accumulate all values in its sub-trees" in {
@@ -233,14 +233,14 @@ class H3TreeTests extends AnyFlatSpec with should.Matchers:
     for
       tree <- maybeTree
     do
-      H3Tree.get (tree, updates (0).idx, 3) should be (Some(1))
-      H3Tree.get (tree, updates (1).idx, 3) should be (Some(10))
-      H3Tree.get (tree, updates (2).idx, 3) should be (Some(100))
-      H3Tree.get (tree, updates (3).idx, 3) should be (Some(1000))
-      H3Tree.get (tree, updates (0).idx, 2) should be (Some(11))
-      H3Tree.get (tree, updates (1).idx, 2) should be (Some(11))
-      H3Tree.get (tree, updates (2).idx, 2) should be (Some(100))
-      H3Tree.get (tree, updates (3).idx, 2) should be (Some(1000))
-      H3Tree.get (tree, updates (0).idx, 0) should be (Some(1111))
-      H3Tree.get (tree, updates (3).idx, 0) should be (Some(1111))
+      H3Tree.get (tree, updates (0).idx, 3) should be (Some (1))
+      H3Tree.get (tree, updates (1).idx, 3) should be (Some (10))
+      H3Tree.get (tree, updates (2).idx, 3) should be (Some (100))
+      H3Tree.get (tree, updates (3).idx, 3) should be (Some (1000))
+      H3Tree.get (tree, updates (0).idx, 2) should be (Some (11))
+      H3Tree.get (tree, updates (1).idx, 2) should be (Some (11))
+      H3Tree.get (tree, updates (2).idx, 2) should be (Some (100))
+      H3Tree.get (tree, updates (3).idx, 2) should be (Some (1000))
+      H3Tree.get (tree, updates (0).idx, 0) should be (Some (1111))
+      H3Tree.get (tree, updates (3).idx, 0) should be (Some (1111))
   }
