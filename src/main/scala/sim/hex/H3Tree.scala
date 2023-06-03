@@ -40,8 +40,6 @@ case class H3Tree [T] private [hex] (address: H3, rootRes: Int, leafRes: Int, ro
 sealed trait H3TreeError extends RuntimeException
 
 object H3TreeError:
-//  case class AccessError (index: H3, level: Int, depth: Int) extends H3TreeError
-//  case class SpanError (root: H3, index: H3) extends H3TreeError
   case class BadAddressError (address: H3) extends H3TreeError
   case class CreationError (rootRes: Int, leafRes: Int, indexRes: Int) extends H3TreeError
   case class AggregationError [A, T] (tree: H3Tree [A], data: Seq[(H3, T)]) extends H3TreeError
@@ -200,7 +198,6 @@ object H3Tree:
         process (node)
         if targetRes != currentRes then
           val childLocalIndex = localIndex (index, currentRes + 1)
-          //println(s"${h3ExplainAddress(index)}, child local $childLocalIndex.  current res = $currentRes, target = $targetRes")
           processNodesToRes (process) (children (childLocalIndex), currentRes + 1, index, targetRes)
         else
           node
