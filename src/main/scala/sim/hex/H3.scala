@@ -118,6 +118,7 @@ transparent inline def h3TruncateToRes (index: H3, res: Int): H3 =
  */
 transparent inline def h3ZeroToRes (index: H3, res: Int): H3 =
   (index >> 3 * (h3MaxRes - res)) << 3 * (h3MaxRes - res)
+
 /**
  * generate random positions that are in the same hex as the centroid of the
  * resolution base hexagon containing base.
@@ -132,11 +133,12 @@ def h3RandomInHex (base: H3, res: Int): H3 =
   do
     index
   index
+
 /**
  * unsafeH3RandomInHex - generates a random H3 index that is contained in a hex of resolution <res> created by trunctating
  *                        <baseHex> index.  Unsafe because H3 will not always be valid if generated in a base pentagon.
- * @param baseHex
- * @param res
+ * @param baseHex - valid H3 index
+ * @param res - hex resolution
  * @return
  */
 transparent inline def unsafeH3RandomInHex (baseHex: H3, res: Int): H3 =
@@ -153,7 +155,7 @@ transparent inline def h3BinaryOnes (n: Int): Long =
 /**
  * h3BitCellMask - mask out parts of a H3 index.
  * @param res - hex resolution
- * @param numBits
+ * @param numBits - number of 1s to generate.
  * @return
  */
 transparent inline def h3BitCellMask (res: Int, numBits: Int): Long =
@@ -161,16 +163,16 @@ transparent inline def h3BitCellMask (res: Int, numBits: Int): Long =
 
 /**
  * h3ZeroBitCell - zero out parts of a H3 index
- * @param res
- * @param numBits
+ * @param res - hex resolution
+ * @param numBits - number of places to mask out.
  * @return
  */
 transparent inline def h3ZeroBitCell (res: Int, numBits: Int): Long =
   ~h3BitCellMask (res, numBits)
 
 /**
- * h3Resolution - return the reslution part of an h3 index.
- * @param index
+ * h3Resolution - return the resolution part of an h3 index.
+ * @param index - valid H3 index
  * @return
  */
 transparent inline def h3Resolution (index: H3): Int =
@@ -183,7 +185,6 @@ transparent inline def h3Resolution (index: H3): Int =
  */
 transparent inline def h3TreeNodeMask (res: Int): Long =
   7L << (3 * (h3MaxRes - res))
-
 
 /**
  * h3Centre - get the centre point of the cell determined by an H3 index
@@ -219,6 +220,7 @@ transparent inline def globalIndexPart (localIndex: Int, res: Int): Long =
  */
 transparent inline def baseHex (index: H3): Short =
   ((index & h3BaseCellMask) >> h3BaseCellShift).toShort
+
 /**
  * contains - checks is location lies in hex
  * @param hex - any valid h3 hex
@@ -266,7 +268,6 @@ def distanceInM (lhs: H3, rhs: H3): Double =
  */
 def driveTimeInS (speedInMpS: Double, from: H3, to: H3): Long =
   distanceInM (from, to).toLong / speedInMpS.toLong
-
 
 /**
  * marginalTime - calculates the difference in travel time between
