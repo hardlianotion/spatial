@@ -194,14 +194,14 @@ object H3Tree:
   @tailrec
   private def processNodesToRes [T] (process: TreeNode[T] => Unit) (currentNode: TreeNode[T], currentRes: Int, index: H3, targetRes: Int): TreeNode[T] =
     currentNode match
-      case node @ Node (data, children) =>
+      case node @ Node (_, children) =>
         process (node)
         if targetRes != currentRes then
           val childLocalIndex = localIndex (index, currentRes + 1)
           processNodesToRes (process) (children (childLocalIndex), currentRes + 1, index, targetRes)
         else
           node
-      case leaf @ Leaf (data) =>
+      case leaf: Leaf [T] =>
         process (leaf)
         leaf
 
