@@ -153,9 +153,9 @@ transparent inline def h3BinaryOnes (n: Int): Long =
   (1L << n) - 1L
 
 /**
- * h3BitCellMask - mask out parts of a H3 index.
+ * h3BitCellMask - mask out higher order parts of a H3 index.
  * @param res - hex resolution
- * @param numBits - number of 1s to generate.
+ * @param numBits - number of lower levels to preserve.
  * @return
  */
 transparent inline def h3BitCellMask (res: Int, numBits: Int): Long =
