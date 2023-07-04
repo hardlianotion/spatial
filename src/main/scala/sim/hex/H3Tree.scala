@@ -192,7 +192,8 @@ object H3Tree:
    * @return - the sub-node represented by index at level
    */
   @tailrec
-  private def processNodesToRes [T] (process: TreeNode[T] => Unit) (currentNode: TreeNode[T], currentRes: Int, index: H3, targetRes: Int): TreeNode[T] =
+  private def processNodesToRes [T] (process: TreeNode [T] => Unit)
+    (currentNode: TreeNode[T], currentRes: Int, index: H3, targetRes: Int): TreeNode[T] =
     currentNode match
       case node @ Node (_, children) =>
         process (node)

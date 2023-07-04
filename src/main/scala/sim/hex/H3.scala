@@ -43,7 +43,7 @@ def h3InBaseTruncate (index: H3): Long =
  * H3 index mode is hardcoded to 1 presently, as we have no applications
  * other than containment.
  *
- * @param res - cell resolution.  Takes values between 0-h3MaxRes.
+ * @param res - cell resolution.  Takes values between h3MinRes-h3MaxRes.
  * @param baseCell - which of the 121 base cells is specified.
  * @param index - indexing to precisely locate a position within the H3 hierarchy.
  * @return
@@ -55,7 +55,7 @@ transparent inline def h3CreateCellIndex (res: Int, baseCell: Int, index: Long):
  * H3 index mode is hardcoded to 1 presently, as we have no applications
  * other than containment.
  *
- * @param res - cell resolution.  Takes values between 0-h3MaxRes.
+ * @param res - cell resolution.  Takes values between h3MinRes-h3MaxRes.
  * @param baseCell - which of the 121 base cells is specified.
  * @param res2LocalIndexes - A map containing resolution mapping to local indexes, missing resolutions will be replaced with 0s
  * @return
@@ -180,7 +180,7 @@ transparent inline def h3Resolution (index: H3): Int =
 
 /**
  * h3TreeNodeMask - mask out the index coordinate at the requested resolution
- * @param res - resolution between (between 1 - h3MaxRes)
+ * @param res - resolution between (between h3MinRes + 1 - h3MaxRes)
  * @return
  */
 transparent inline def h3TreeNodeMask (res: Int): Long =
@@ -198,7 +198,7 @@ inline def h3Centre (cell: H3, res: Int): H3 =
 /**
  * localIndex - get the local coordinate of index at res
  * @param index - the h3 index
- * @param res - the resolution required (between 1 - h3MaxRes)
+ * @param res - the resolution required (between h3MinRes + 1 - h3MaxRes)
  * @return - the local index
  */
 transparent inline def localIndex (index: H3, res: Int): Int =
@@ -207,7 +207,7 @@ transparent inline def localIndex (index: H3, res: Int): Int =
 /**
  * get the global part of H3 index at res
  * @param localIndex - local index value
- * @param res - the resolution required (between 1 - h3MaxRes)
+ * @param res - the resolution required (between h3MinRes + 1 - h3MaxRes)
  * @return - the global part of H3 index
  */
 transparent inline def globalIndexPart (localIndex: Int, res: Int): Long =
