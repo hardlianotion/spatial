@@ -11,7 +11,7 @@ import org.scalatest.matchers.should
 class H3TreeTests extends AnyFlatSpec with should.Matchers:
   val root = h3CreateCellIndex (13, 0, Map (13 -> 6))
 
-  "A tree that is a leaf" should "have depth 0" in {
+  "A tree that is a leaf" should "have depth 0" in:
     val maybeTree = H3Tree.fromRoot (root, 0, Leaf (2))
     maybeTree.isRight should be (true)
 
@@ -19,9 +19,8 @@ class H3TreeTests extends AnyFlatSpec with should.Matchers:
       tree <- maybeTree
     do
       H3Tree.depth (tree) should be (0)
-  }
 
-  "A subtree of a tree of size N that is accessed at a depth n" should "have a depth of N - n" in {
+  "A subtree of a tree of size N that is accessed at a depth n" should "have a depth of N - n" in:
     val maybeTree = H3Tree.empty [Int, Int] (0, 7, root)
     maybeTree.isRight should be (true)
 
@@ -31,9 +30,8 @@ class H3TreeTests extends AnyFlatSpec with should.Matchers:
     do
       maybeSubtree5.isDefined should be (true)
       H3Tree.depth (maybeSubtree5.orNull) should be (2)
-  }
 
-  "A tree that is a node" should "have depth 1 greater than its children" in {
+  "A tree that is a node" should "have depth 1 greater than its children" in:
     val maybeTwoTree = H3Tree.empty [Int, Int] (0, 2, root)
     maybeTwoTree.isRight should be (true)
 
@@ -49,9 +47,8 @@ class H3TreeTests extends AnyFlatSpec with should.Matchers:
       val oneTree = maybeOneTree.toOption.orNull
       H3Tree.depth (twoTree) should be (2)
       H3Tree.depth (oneTree) should be (H3Tree.depth (twoTree) - 1)
-  }
 
-  "H3Tree.get" should "retrieve only value assigned by H3Tree.set" in {
+  "H3Tree.get" should "retrieve only value assigned by H3Tree.set" in:
     val rootIdx = h3CreateCellIndex (15, 0, Map(13 -> 5))
     val updatedIdx = h3CreateCellIndex (15, 0, Map(13 -> 5, 14 -> 1, 15 -> 1))
     val siblingIdx = h3CreateCellIndex (15, 0, Map(13 -> 5, 14 -> 3, 15 -> 2))
@@ -70,7 +67,7 @@ class H3TreeTests extends AnyFlatSpec with should.Matchers:
       H3Tree.get (tree, updatedIdx, 0) should be (Some(0))
       H3Tree.get (tree, updatedIdx, 2) should be (Some(0))
       H3Tree.get (tree, siblingIdx, 1) should be (Some(0))
-  }
+
 
   case class Data (idx: H3, data: Int)
 
@@ -84,7 +81,7 @@ class H3TreeTests extends AnyFlatSpec with should.Matchers:
     )
   val rootIdx = h3CreateCellIndex (15, 28, Map(11 -> 3, 13 -> 1))
 
-  "A tree level" should "accumulate all values accumulate by its sub-trees" in {
+  "A tree level" should "accumulate all values accumulate by its sub-trees" in:
     updates.forall (x => instance.isValidCell (x.idx)) should be (true)
 
     instance.isValidCell (rootIdx) should be (true)
@@ -118,9 +115,8 @@ class H3TreeTests extends AnyFlatSpec with should.Matchers:
       H3Tree.get (tree, updates (3).idx, 2) should be (Some (1000))
       H3Tree.get (tree, updates (0).idx, 0) should be (Some (1111))
       H3Tree.get (tree, updates (3).idx, 0) should be (Some (1111))
-  }
 
-  "A tree 'shifted' from another by n degrees" should "has node at level y corresponding to n + y in the lower tree" in {
+  "A tree 'shifted' from another by n degrees" should "has node at level y corresponding to n + y in the lower tree" in:
     updates.forall (x => instance.isValidCell (x.idx)) should be (true)
 
     instance.isValidCell (rootIdx) should be (true)
@@ -155,12 +151,11 @@ class H3TreeTests extends AnyFlatSpec with should.Matchers:
       lowerTest2 should be (Some (1111))
       lowerTest1 should be (higherTest1)
       lowerTest2 should be (higherTest2)
-  }
 
   // NOTE - this is a res-15 index
   val anotherRootIdx = h3CreateCellIndex (15, 28, Map(11 -> 3, 12 -> 1, 15 -> 1))
 
-  "A tree that cannot contain an index" should "not be able to hold the index data" in {
+  "A tree that cannot contain an index" should "not be able to hold the index data" in:
     instance.isValidCell (anotherRootIdx) should be (true)
 
     val maybeTree = H3Tree.empty [Int, Int] (12, 15, anotherRootIdx)
@@ -182,9 +177,8 @@ class H3TreeTests extends AnyFlatSpec with should.Matchers:
       H3Tree.get (tree, updates (3).idx, 1).isDefined should be (false)
       H3Tree.get (tree, updates (0).idx, 2).isDefined should be (false)
       H3Tree.get (tree, updates (3).idx, 2).isDefined should be (false)
-  }
 
-  "An index with resolution < root resolution" should "not be stored in the tree" in {
+  "An index with resolution < root resolution" should "not be stored in the tree" in:
     val maybeTree = H3Tree.empty [Int, Int] (12, 15, anotherRootIdx)
 
     maybeTree.isRight should be (true)
@@ -199,9 +193,8 @@ class H3TreeTests extends AnyFlatSpec with should.Matchers:
     do
       result should be (false)
       H3Tree.get (tree, cannotInsert, 1).isDefined should be (false)
-  }
 
-  "An index such that rootRes < resolution < leafRes" should "be stored in level (resolution - rootRes) in the tree" in {
+  "An index such that rootRes < resolution < leafRes" should "be stored in level (resolution - rootRes) in the tree" in:
     val maybeTree = H3Tree.empty [Int, Int] (12, 14, anotherRootIdx)
 
     maybeTree.isRight should be (true)
@@ -223,9 +216,8 @@ class H3TreeTests extends AnyFlatSpec with should.Matchers:
       H3Tree.get (tree, canInsert, 2) should be (Some (5))
       // NOTE get at the "natural" level also works.
       H3Tree.get (tree, canInsert) should be (Some (5))
-  }
 
-  "Constructing trees with data" should "accumulate all values in its sub-trees" in {
+  "Constructing trees with data" should "accumulate all values in its sub-trees" in:
     val maybeTree = H3Tree.fromData [Int, Int] (12, 15, rootIdx, updates.map (x => (x.idx, x.data)):_*)
 
     maybeTree.isRight should be (true)
@@ -243,4 +235,3 @@ class H3TreeTests extends AnyFlatSpec with should.Matchers:
       H3Tree.get (tree, updates (3).idx, 2) should be (Some (1000))
       H3Tree.get (tree, updates (0).idx, 0) should be (Some (1111))
       H3Tree.get (tree, updates (3).idx, 0) should be (Some (1111))
-  }
