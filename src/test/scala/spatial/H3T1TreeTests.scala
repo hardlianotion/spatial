@@ -8,4 +8,5 @@ import scala.language.postfixOps
 import org.scalatest.matchers.should
 
 
-class H3BinTreeTests extends AnyFlatSpec with should.Matchers
+class H3T1TreeTests extends AnyFlatSpec with should.Matchers
+  

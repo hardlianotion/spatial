@@ -12,7 +12,7 @@ object Index:
     ???
 
 
-case class H3BinTree [T] private [hex] (address: Index, rootRes: Byte, leafRes: Byte, root: TreeNode [T])
+case class H3T1Tree [T] private [hex](address: Index, rootRes: Byte, leafRes: Byte, root: TreeNode [T])
 
 /**
  * H3BinTree implementation shares the H3Tree structure, but packs the spare bit on each tree level.
@@ -22,5 +22,5 @@ case class H3BinTree [T] private [hex] (address: Index, rootRes: Byte, leafRes: 
  * The resulting tree structure can partition, for example, global information over a day to a resolution of 3 seconds and
  * 10 centimetres.  Which is good enough to use as a starting point.
  */
-object H3BinTree:
+object H3T1Tree:
   ???
