@@ -1,4 +1,4 @@
-package sim
+package spatial
 
 import com.uber.h3core.util.LatLng
 
@@ -9,7 +9,7 @@ import scala.collection.mutable.{Set, Map as MutableMap}
 import scala.language.postfixOps
 
 import zio.prelude.NonEmptyList as NEL
-import sim.hex.{H3, H3Tree, h3Random, h3RandomInHex}
+import spatial.hex.{H3, H3Tree, h3Random, h3RandomInHex}
 
 
 object DeliveryMocks:
@@ -24,4 +24,4 @@ object DeliveryMocks:
   val locationsInNigeria: Seq [H3] = (1 to 10).map (_ => h3RandomInHex (josZoo, 13))
 
 object RegionMocks:
-  import sim.DeliveryMocks.*
+  import spatial.DeliveryMocks.*

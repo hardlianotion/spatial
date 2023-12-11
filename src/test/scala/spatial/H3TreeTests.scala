@@ -1,4 +1,4 @@
-package sim.hex
+package spatial.hex
 
 import org.scalatest.flatspec.AnyFlatSpec
 

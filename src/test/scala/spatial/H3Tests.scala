@@ -1,11 +1,11 @@
-package sim
+package spatial
 
 import org.scalatest.*
 import flatspec.*
 import matchers.*
 
-import sim.hex.*
-import sim.DeliveryMocks.locationsInTree
+import spatial.hex.*
+import spatial.DeliveryMocks.locationsInTree
 
 
 // FIXME - a bit more organisation into coherent sections

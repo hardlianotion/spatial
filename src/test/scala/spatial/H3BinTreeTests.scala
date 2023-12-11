@@ -1,4 +1,4 @@
-package sim
+package spatial
 
 import org.scalatest.flatspec.AnyFlatSpec
 
