@@ -14,7 +14,7 @@ val Matplotlib4jVersion = "0.5.0"
 val VulcanVersion = "1.7.1"
 val ApacheMathVersion = "3.6.1"
 val ZioHttpVersion = "2.0.0-RC5"
-val ZioPreludeVersion = "1.0.0-RC18"
+val ZioPreludeVersion = "1.0.0-RC21"
 
 fork / run := true
 
