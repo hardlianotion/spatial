@@ -18,7 +18,7 @@ val ZioPreludeVersion = "1.0.0-RC18"
 
 fork / run := true
 
-lazy val sim =
+lazy val spatial =
   project
     .in (file("."))
     .settings (
