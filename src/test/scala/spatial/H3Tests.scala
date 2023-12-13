@@ -12,10 +12,10 @@ import spatial.DeliveryMocks.locationsInTree
 class H3Tests extends AnyFlatSpec with should.Matchers:
 
   "A level 12 tree mask" should "be 111000000000" in:
-    assert (H3.treeNodeMask (12).toBinaryString == "111000000000")
+    assert (H3.treeNodeMask (12).binaryString == "111000000000")
 
   "A level 15 tree mask" should "be 111" in:
-    assert (H3.treeNodeMask (15).toBinaryString == "111")
+    assert (H3.treeNodeMask (15).binaryString == "111")
 
   "A level 15 mask" should "be 0" in:
     assert (H3.bitCellMask (15, 3) == 0)
@@ -30,22 +30,22 @@ class H3Tests extends AnyFlatSpec with should.Matchers:
     assert (H3.bitCellMask (12, 3).toHexString == "1ff")
 
   "15" should "contain 12" in:
-    assert (H3 ((14L << 52) + 15L).contains (H3 (12L)))
+    assert (H3.unsafe ((14L << 52) + 15L).contains (H3.unsafe (12L)))
 
   "8f754e64992d6d8" should "be contained in hex 8e754e64992d6df" in:
-    assert (H3 (java.lang.Long.valueOf ("8e754e64992d6df", 16)).contains (H3 (java.lang.Long.valueOf ("8f754e64992d6d8", 16))))
+    assert (H3.safe (java.lang.Long.valueOf ("8e754e64992d6df", 16)).contains (H3.safe (java.lang.Long.valueOf ("8f754e64992d6d8", 16))))
 
   "3L" should "localise to 3 at level 15" in:
-    assert (H3 (3L).local (15) == 3)
+    assert (H3.unsafe (3L).local (15) == 3)
 
   "3L" should "localise to 0 at level 14" in:
-    assert (H3 (3L).local (14) == 0)
+    assert (H3.unsafe (3L).local (14) == 0)
 
   "3L << 3" should "localise to 0 at level 15" in:
-    assert (H3 (3L << 3).local (15) == 0)
+    assert (H3.unsafe (3L << 3).local (15) == 0)
 
   "3L << 3" should "localise to 3 at level 14" in:
-    assert (H3 (3L << 3).local (14) == 3)
+    assert (H3.unsafe (3L << 3).local (14) == 3)
 
   "h3Level" should "return the resolution level of an index" in:
     assert (true)
@@ -63,7 +63,7 @@ class H3Tests extends AnyFlatSpec with should.Matchers:
     truncIndex.resolution should be (5)
 
   "h3CreateCellIndex" should "return a well formatted h3 index" in:
-    val index = H3.createCellIndex (14, 128, Map(12 -> 1, 13 -> 2, 14 -> 3, 15 -> 4))
+    val index: H3 = H3.createCellIndex (14, 128, Map(12 -> 1, 13 -> 2, 14 -> 3, 15 -> 4))
 
     index.local (12) should be (1)
     index.local (13) should be (2)

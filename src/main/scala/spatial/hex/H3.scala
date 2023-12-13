@@ -12,8 +12,11 @@ lazy val instance: H3Core = H3Core.newInstance
 opaque type H3 = Long
 
 object H3:
-  def apply (impl: Long): H3 =
+  def safe (impl: Long): H3 =
     assert (instance.isValidCell (impl))
+    impl
+
+  def apply (impl: Long): H3 =
     impl
 
   def unsafe (impl: Long): H3 =
@@ -37,14 +40,14 @@ object H3:
   private lazy val zeroResOnly: H3 = allOnes & ~resMask
 
   transparent inline def fromLatLng (latLng: LatLng, res: Int): H3 =
-    H3 (instance.latLngToCell (latLng.lat, latLng.lng, res))
+    H3.safe (instance.latLngToCell (latLng.lat, latLng.lng, res))
 
   /**
    * binaryOnes - produces 2^n - 1 or n ones in binary
    * @param n \in {0, ..., 63} - number of ones to produce.
    * @return
    */
-  transparent inline def binaryOnes (n: Int): Long =
+  transparent inline def binaryOnes (n: Int): H3 =
     (1L << n) - 1L
 
   /**
@@ -53,8 +56,8 @@ object H3:
    * @param res - resolution between (between h3MinRes + 1 - h3MaxRes)
    * @return
    */
-  transparent inline def treeNodeMask (res: Int): Long =
-    7L << (3 * (maxRes - res))
+  transparent inline def treeNodeMask (res: Int): H3 =
+    H3.unsafe (7L << (3 * (maxRes - res)))
 
   /**
    * H3 index mode is hardcoded to 1 presently, as we have no applications
@@ -62,11 +65,11 @@ object H3:
    *
    * @param res      - cell resolution.  Takes values between h3MinRes-h3MaxRes.
    * @param baseCell - which of the 121 base cells is specified.
-   * @param index    - indexing to precisely locate a position within the H3 hierarchy.
+   * @param hex    - indexing to precisely locate a position within the H3 hierarchy.
    * @return
    */
-  transparent inline def createCellIndex (res: Int, baseCell: Int, index: Long): H3 =
-    cellModeMask | (res.toLong << resShift) | (baseCell.toLong << baseCellShift) | index
+  transparent inline def createCellIndex (res: Int, baseCell: Int, hex: H3): H3 =
+    cellModeMask | (res.toLong << resShift) | (baseCell.toLong << baseCellShift) | hex
 
   /**
    * zeroBitCell - zero out parts of a H3 index
@@ -75,7 +78,7 @@ object H3:
    * @param numBits - number of places to mask out.
    * @return
    */
-  transparent inline def zeroBitCell (res: Int, numBits: Int): Long =
+  transparent inline def zeroBitCell (res: Int, numBits: Int): H3 =
     ~bitCellMask (res, numBits)
 
   /**
@@ -88,8 +91,8 @@ object H3:
    * @return
    */
   transparent inline def createCellIndex (res: Int, baseCell: Int, res2Local: Map [Int, Int]): H3 =
-    val index = res2Local.foldLeft (unset) { case (acc, (res, localIdx)) =>
-      acc | globalIndexPart (localIdx, res)
+    val index: H3 = res2Local.foldLeft (unset) { case (acc, (res, localIdx)) =>
+      acc or globalIndexPart (localIdx, res)
     }
     createCellIndex (res, baseCell, index.truncateToRes (res))
 
@@ -134,7 +137,7 @@ object H3:
    * @param numBits - number of lower levels to preserve.
    * @return
    */
-  transparent inline def bitCellMask (res: Int, numBits: Int): Long =
+  transparent inline def bitCellMask (res: Int, numBits: Int): H3 =
     binaryOnes ((maxRes - res) * numBits)
 
   /**
@@ -144,8 +147,8 @@ object H3:
    * @param res        - the resolution required (between h3MinRes + 1 - h3MaxRes)
    * @return - the global part of H3 index
    */
-  transparent inline def globalIndexPart (localIndex: Int, res: Int): Long =
-    (treeNodeMask (maxRes) & localIndex) << (3 * (maxRes - res)).toLong
+  transparent inline def globalIndexPart (localIndex: Int, res: Int): H3 =
+    H3.unsafe ((treeNodeMask (maxRes) & localIndex) << (3 * (maxRes - res)))
 
   /**
    * driveTimeInS - drive time in seconds between from and to
@@ -183,6 +186,12 @@ object H3:
     transparent inline def toLatLng: LatLng =
       instance.cellToLatLng (hex)
 
+    transparent inline def binaryString: String =
+      hex.toBinaryString
+
+    transparent inline def or (rhs: H3): H3 =
+      hex | rhs
+
     /**
      * distance - checks the linear distance between lhs and rhs in terms of unit
      *
@@ -211,7 +220,7 @@ object H3:
     transparent inline def distanceInM (rhs: H3): Double =
       hex.distance (rhs, LengthUnit.m)
 
-    def inBaseTruncate: Long =
+    def inBaseTruncate: H3 =
       hex & inBaseMask
 
     /**
@@ -224,7 +233,7 @@ object H3:
       val indexRes = hex.resolution
 
       s"Resolution = $resolution [${
-        (minRes to indexRes).foldLeft("")((agg, res) => s"$agg ${hex.local(res)}")
+        (minRes to indexRes).foldLeft ("") ((agg, res) => s"$agg ${hex.local (res)}")
       }]"
 
     /**
@@ -233,8 +242,8 @@ object H3:
      * @param res - the resolution required (between h3MinRes + 1 - h3MaxRes)
      * @return - the local index
      */
-    transparent inline def local(res: Int): Int =
-      ((treeNodeMask(res) & hex) >> (3 * (maxRes - res))).toInt
+    transparent inline def local (res: Int): Int =
+      ((treeNodeMask (res) & hex) >> (3 * (maxRes - res))).toInt
 
     /**
      * unsafeRandomInHex - generates a random H3 index that is contained in a hex of resolution <res> created by trunctating
@@ -243,8 +252,8 @@ object H3:
      * @param res - hex resolution
      * @return
      */
-    transparent inline def unsafeRandomInHex(res: Int): H3 =
-      hex.zeroToRes(res) | generateValidBase(res, maxRes)
+    transparent inline def unsafeRandomInHex (res: Int): H3 =
+      hex.zeroToRes (res) | generateValidBase (res, maxRes)
 
     /**
      * generate random positions that are in the same hex as the centroid of the
@@ -252,11 +261,11 @@ object H3:
      *
      * @return - a random hex location from within hex base
      */
-    def randomInHex(res: Int): H3 =
+    def randomInHex (res: Int): H3 =
       var index = unset
       while
         index = hex unsafeRandomInHex res
-        !instance.isValidCell(index)
+        index.isInvalid
       do
         index
       index
@@ -267,8 +276,8 @@ object H3:
      * @param res - cell resolution
      * @return - minimum resolution index at centre of cell.  Considered a point.
      */
-    inline def centre(res: Int): H3 =
-      instance.cellToCenterChild(hex, res)
+    inline def centre (res: Int): H3 =
+      instance.cellToCenterChild (hex, res)
 
     /**
      * truncates an index to a given resolution.
@@ -276,8 +285,8 @@ object H3:
      * @param res - resolution, assumed to be in {h3MinRes, ..., h3MaxRes}.  This is not protected in any way.
      * @return
      */
-    transparent inline def truncateToRes(res: Int): H3 =
-      (hex & zeroResOnly) | bitCellMask(res, 3) | (res.toLong << resShift)
+    transparent inline def truncateToRes (res: Int): H3 =
+      (hex & zeroResOnly) | bitCellMask (res, 3) | (res.toLong << resShift)
 
     /**
      * zeroes all indices higher than res in the index.
@@ -286,7 +295,7 @@ object H3:
      * @param res - resolution of the cell for which we compute a centre.
      * @return
      */
-    transparent inline def zeroToRes(res: Int): H3 =
+    transparent inline def zeroToRes (res: Int): H3 =
       (hex >> 3 * (maxRes - res)) << 3 * (maxRes - res)
 
     /**
@@ -303,7 +312,6 @@ object H3:
      * @param location - any valid h3 hex
      * @return - true if location in hex, false otherwise
      */
-    transparent inline def contains(location: H3): Boolean =
-      (hex & locationMask) == ((location & locationMask) | bitCellMask(hex.resolution, 3))
+    transparent inline def contains (location: H3): Boolean =
+      (hex & locationMask) == ((location & locationMask) | bitCellMask (hex.resolution, 3))
         && hex.baseHex == location.baseHex
-

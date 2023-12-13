@@ -16,7 +16,7 @@ object DeliveryMocks:
   // h3 addresses
   val testTreeLevel = 5
   // NOTE -  8f39601ae658180 somewhere in Toulouse, I think
-  val testHubAddress: H3 = H3 (java.lang.Long.valueOf ("8f39601ae658180", 16))
+  val testHubAddress: H3 = H3.safe (java.lang.Long.valueOf ("8f39601ae658180", 16))
   val locationsInTree: Seq [H3] = (1 to 10).map (_ => testHubAddress.randomInHex (testTreeLevel))
 
   // NOTE - these are generated to be outside any sensible tree containing testHubAddress

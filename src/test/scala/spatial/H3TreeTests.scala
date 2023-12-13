@@ -9,7 +9,7 @@ import org.scalatest.matchers.should
 
 
 class H3TreeTests extends AnyFlatSpec with should.Matchers:
-  val root = H3.createCellIndex (13, 0, Map (13 -> 6))
+  val root: H3 = H3.createCellIndex (13, 0, Map (13 -> 6))
 
   "A tree that is a leaf" should "have depth 0" in:
     val maybeTree = H3Tree.fromRoot (root, 0, Leaf (2))
@@ -49,9 +49,9 @@ class H3TreeTests extends AnyFlatSpec with should.Matchers:
       H3Tree.depth (oneTree) should be (H3Tree.depth (twoTree) - 1)
 
   "H3Tree.get" should "retrieve only value assigned by H3Tree.set" in:
-    val rootIdx = H3.createCellIndex (15, 0, Map(13 -> 5))
-    val updatedIdx = H3.createCellIndex (15, 0, Map(13 -> 5, 14 -> 1, 15 -> 1))
-    val siblingIdx = H3.createCellIndex (15, 0, Map(13 -> 5, 14 -> 3, 15 -> 2))
+    val rootIdx = H3.createCellIndex (15, 0, Map (13 -> 5))
+    val updatedIdx = H3.createCellIndex (15, 0, Map (13 -> 5, 14 -> 1, 15 -> 1))
+    val siblingIdx = H3.createCellIndex (15, 0, Map (13 -> 5, 14 -> 3, 15 -> 2))
     val maybeTree = H3Tree.empty [Int, Int] (13, 15, rootIdx)
 
     maybeTree.isRight should be (true)
@@ -119,7 +119,7 @@ class H3TreeTests extends AnyFlatSpec with should.Matchers:
   "A tree 'shifted' from another by n degrees" should "has node at level y corresponding to n + y in the lower tree" in:
     updates.forall (x => x.idx.isValid) should be (true)
 
-    instance.isValidCell (rootIdx) should be (true)
+    rootIdx.isValid should be (true)
 
     // NOTE lowerTree is shifted 2 'down' from higherTree
     val lowerMaybeTree = H3Tree.empty [Int, Int] (12, 15, rootIdx)
@@ -156,7 +156,7 @@ class H3TreeTests extends AnyFlatSpec with should.Matchers:
   val anotherRootIdx = H3.createCellIndex (15, 28, Map(11 -> 3, 12 -> 1, 15 -> 1))
 
   "A tree that cannot contain an index" should "not be able to hold the index data" in:
-    instance.isValidCell (anotherRootIdx) should be (true)
+    anotherRootIdx.isValid should be (true)
 
     val maybeTree = H3Tree.empty [Int, Int] (12, 15, anotherRootIdx)
 
@@ -204,7 +204,7 @@ class H3TreeTests extends AnyFlatSpec with should.Matchers:
     //        identical indices down to index 12, which is equal to maybeTree.rootRes
     val canInsert = H3.createCellIndex (14, 28, Map(11 -> 3, 12 -> 1, 14 -> 3))
 
-    instance.isValidCell (canInsert) should be (true)
+    canInsert.isValid should be (true)
 
     for
       tree <- maybeTree
