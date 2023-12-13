@@ -16,9 +16,6 @@ object H3:
     assert (instance.isValidCell (impl))
     impl
 
-  def apply (impl: Long): H3 =
-    impl
-
   def unsafe (impl: Long): H3 =
     impl
 
