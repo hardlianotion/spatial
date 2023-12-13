@@ -12,60 +12,60 @@ import spatial.DeliveryMocks.locationsInTree
 class H3Tests extends AnyFlatSpec with should.Matchers:
 
   "A level 12 tree mask" should "be 111000000000" in:
-    assert (h3TreeNodeMask (12).toBinaryString == "111000000000")
+    assert (H3.treeNodeMask (12).toBinaryString == "111000000000")
 
   "A level 15 tree mask" should "be 111" in:
-    assert (h3TreeNodeMask (15).toBinaryString == "111")
+    assert (H3.treeNodeMask (15).toBinaryString == "111")
 
   "A level 15 mask" should "be 0" in:
-    assert (h3BitCellMask (15, 3) == 0)
+    assert (H3.bitCellMask (15, 3) == 0)
 
   "A level 14 mask" should "be 7" in:
-    assert (h3BitCellMask (14, 3).toHexString == "7")
+    assert (H3.bitCellMask (14, 3).toHexString == "7")
 
   "A level 13 mask" should "be 3f" in:
-    assert (h3BitCellMask (13, 3).toHexString == "3f")
+    assert (H3.bitCellMask (13, 3).toHexString == "3f")
 
   "A level 12 mask" should "be 1ff" in:
-    assert (h3BitCellMask (12, 3).toHexString == "1ff")
+    assert (H3.bitCellMask (12, 3).toHexString == "1ff")
 
   "15" should "contain 12" in:
-    assert (contains ((14L << 52) + 15L, 12))
+    assert (H3 ((14L << 52) + 15L).contains (H3 (12L)))
 
   "8f754e64992d6d8" should "be contained in hex 8e754e64992d6df" in:
-    assert (contains (java.lang.Long.valueOf ("8e754e64992d6df", 16), java.lang.Long.valueOf ("8f754e64992d6d8", 16)))
+    assert (H3 (java.lang.Long.valueOf ("8e754e64992d6df", 16)).contains (H3 (java.lang.Long.valueOf ("8f754e64992d6d8", 16))))
 
   "3L" should "localise to 3 at level 15" in:
-    assert (localIndex (3L, 15) == 3)
+    assert (H3 (3L).local (15) == 3)
 
   "3L" should "localise to 0 at level 14" in:
-    assert (localIndex (3L, 14) == 0)
+    assert (H3 (3L).local (14) == 0)
 
   "3L << 3" should "localise to 0 at level 15" in:
-    assert (localIndex (3L << 3, 15) == 0)
+    assert (H3 (3L << 3).local (15) == 0)
 
   "3L << 3" should "localise to 3 at level 14" in:
-    assert (localIndex (3L << 3, 14) == 3)
+    assert (H3 (3L << 3).local (14) == 3)
 
   "h3Level" should "return the resolution level of an index" in:
     assert (true)
 
   "generated h3 points" should "be valid" in:
-    val randomH3 = unsafeH3Random (28, 0, 13)
+    val randomH3 = H3.unsafeRandom (28, 0, 13)
 
     instance.isValidCell (randomH3) should be (true)
 
   "h3TruncateToLevel" should "return a level-truncated h3 with local index 0" in:
     val index = locationsInTree (0)
-    val truncIndex = h3TruncateToRes (index, 5)
+    val truncIndex = index.truncateToRes (5)
 
-    instance.isValidCell (index) should be (true)
-    h3Resolution (truncIndex) should be (5)
+    index.isValid should be (true)
+    truncIndex.resolution should be (5)
 
   "h3CreateCellIndex" should "return a well formatted h3 index" in:
-    val index = h3CreateCellIndex(14, 128, Map(12 -> 1, 13 -> 2, 14 -> 3, 15 -> 4))
+    val index = H3.createCellIndex (14, 128, Map(12 -> 1, 13 -> 2, 14 -> 3, 15 -> 4))
 
-    localIndex(index, 12) should be (1)
-    localIndex(index, 13) should be (2)
-    localIndex(index, 14) should be (3)
-    localIndex(index, 15) should be (7) // this is because everything below level 14 should be truncated
+    index.local (12) should be (1)
+    index.local (13) should be (2)
+    index.local (14) should be (3)
+    index.local (15) should be (7) // this is because everything below level 14 should be truncated

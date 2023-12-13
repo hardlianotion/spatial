@@ -3,7 +3,6 @@ package spatial.hex
 import scala.annotation.tailrec
 
 import spatial.math.Aggregable
-import spatial.hex.contains as h3Contains
 
 
 sealed trait TreeNode [T]:
@@ -56,14 +55,14 @@ object H3Tree:
    * @return - true if tree contains index, false otherwise
    */
   def contains [T] (tree: H3Tree [T], index: H3): Boolean =
-    h3Contains (h3TruncateToRes (tree.address, tree.rootRes), index)
+    tree.address.truncateToRes (tree.rootRes).contains (index)
 
   /**
    * returns the level of address relative to the root resolution
    * @param address - a valid H3 address
    */
   def level [T] (tree: H3Tree [T], address: H3): Int =
-    h3Resolution (address) - tree.rootRes
+    address.resolution - tree.rootRes
 
   /**
    * depth - the length of the address path from node to leaf node.
@@ -103,9 +102,9 @@ object H3Tree:
   def fromRoot [T] (address: H3, leafRes: Int, root: TreeNode [T]): Either [H3TreeError, H3Tree [T]] =
     val rootRes = leafRes - H3Tree.depth (root)
     // NOTE address resolution must be greater than leaf level in order for it to represent root address in the tree.
-    if rootRes < 0 || leafRes < 0 || leafRes > h3Resolution (address) then
-      Left (H3TreeError.CreationError (rootRes, leafRes, h3Resolution (address)))
-    else if !instance.isValidCell (address) then
+    if rootRes < 0 || leafRes < 0 || leafRes > address.resolution then
+      Left (H3TreeError.CreationError (rootRes, leafRes, address.resolution))
+    else if address.isInvalid then
       Left (H3TreeError.BadAddressError (address))
     else
       Right (H3Tree[T] (address, leafRes - H3Tree.depth (root), leafRes, root))
@@ -126,9 +125,9 @@ object H3Tree:
    */
   def empty [A, T] (rootRes: Int, leafRes: Int, address: H3) (using agg: Aggregable [A, T]): Either [H3TreeError, H3Tree [A]] =
     // NOTE address resolution must be greater than leaf level in order for it to represent root address in the tree.
-    if rootRes < 0 || leafRes < 0  || leafRes > h3Resolution (address) then
-      Left (H3TreeError.CreationError (rootRes, leafRes, h3Resolution (address)))
-    else if !instance.isValidCell (address) then
+    if rootRes < 0 || leafRes < 0  || leafRes > address.resolution then
+      Left (H3TreeError.CreationError (rootRes, leafRes, address.resolution))
+    else if address.isInvalid then
       Left (H3TreeError.BadAddressError (address))
     else
       def impl (depth: Int): TreeNode [A] =
@@ -173,7 +172,7 @@ object H3Tree:
    */
   private [hex] def subNode [T] (tree: H3Tree [T], index: H3, level: Int): Option [TreeNode [T]] =
     val resolution = tree.rootRes + level
-    if contains (tree, index) && resolution >= 0 && resolution <= h3MaxRes then
+    if contains (tree, index) && resolution >= 0 && resolution <= H3.maxRes then
       val node = processNodesToRes [T] (_ => ()) (tree.root, tree.rootRes, index, resolution)
       Some (node)
     else
@@ -198,7 +197,7 @@ object H3Tree:
       case node @ Node (_, children) =>
         process (node)
         if targetRes != currentRes then
-          val childLocalIndex = localIndex (index, currentRes + 1)
+          val childLocalIndex = index.local (currentRes + 1)
           processNodesToRes (process) (children (childLocalIndex), currentRes + 1, index, targetRes)
         else
           node
@@ -269,7 +268,7 @@ object H3Tree:
    */
   def accumulate [A, T] (tree: H3Tree [A], index: H3, level: Int, data: T) (using agg: Aggregable [A, T]): Boolean =
     val resolution = tree.rootRes + level
-    if contains (tree, index) && resolution >= tree.leafRes && resolution <= h3MaxRes then
+    if contains (tree, index) && resolution >= tree.leafRes && resolution <= H3.maxRes then
       processNodesToRes [A] (node => node.setData (agg.add (node.data, data))) (tree.root, tree.rootRes, index, resolution)
       true
     else
