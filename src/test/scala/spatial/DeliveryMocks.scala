@@ -2,14 +2,9 @@ package spatial
 
 import com.uber.h3core.util.LatLng
 
-import java.time.{Duration, Instant}
-
-import scala.collection.immutable.SortedMap
-import scala.collection.mutable.{Set, Map as MutableMap}
 import scala.language.postfixOps
 
-import zio.prelude.NonEmptyList as NEL
-import spatial.hex.{H3, H3Tree}
+import spatial.hex.H3
 
 
 object DeliveryMocks:
@@ -22,6 +17,3 @@ object DeliveryMocks:
   // NOTE - these are generated to be outside any sensible tree containing testHubAddress
   val josZoo: H3 = H3.fromLatLng (LatLng (9.920420123563392, 8.887754970466519), 15)
   val locationsInNigeria: Seq [H3] = (1 to 10).map (_ => josZoo.randomInHex (13))
-
-object RegionMocks:
-  import spatial.DeliveryMocks.*
