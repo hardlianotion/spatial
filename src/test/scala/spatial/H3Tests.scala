@@ -56,7 +56,7 @@ class H3Tests extends AnyFlatSpec with should.Matchers:
     instance.isValidCell (randomH3) should be (true)
 
   "h3TruncateToLevel" should "return a level-truncated h3 with local index 0" in:
-    val index = locationsInTree (0)
+    val index = locationsInTree.head
     val truncIndex = index.truncateToRes (5)
 
     index.isValid should be (true)

@@ -2,7 +2,6 @@ package spatial.hex
 
 import org.scalatest.flatspec.AnyFlatSpec
 
-import scala.Right
 import scala.language.postfixOps
 
 import org.scalatest.matchers.should
@@ -72,19 +71,19 @@ class H3TreeTests extends AnyFlatSpec with should.Matchers:
   case class Data (idx: H3, data: Int)
 
   // NOTE - updates are all res 15 indices (check out the highest level index entry)
-  val updates =
+  val updates: Seq[Data] =
     List (
-      Data (H3.createCellIndex (15, 28, Map(11 -> 3, 13 -> 1, 14 -> 3, 15 -> 2)), 1),
-      Data (H3.createCellIndex (15, 28, Map(11 -> 3, 13 -> 1, 14 -> 3, 15 -> 1)), 10),
-      Data (H3.createCellIndex (15, 28, Map(11 -> 3, 13 -> 1, 14 -> 2, 15 -> 0)), 100),
-      Data (H3.createCellIndex (15, 28,  Map(11 -> 3, 13 -> 1, 14 -> 1, 15 -> 1)), 1000),
+      Data (H3.createCellIndex (15, 28, Map (11 -> 3, 13 -> 1, 14 -> 3, 15 -> 2)), 1),
+      Data (H3.createCellIndex (15, 28, Map (11 -> 3, 13 -> 1, 14 -> 3, 15 -> 1)), 10),
+      Data (H3.createCellIndex (15, 28, Map (11 -> 3, 13 -> 1, 14 -> 2, 15 -> 0)), 100),
+      Data (H3.createCellIndex (15, 28,  Map (11 -> 3, 13 -> 1, 14 -> 1, 15 -> 1)), 1000),
     )
-  val rootIdx = H3.createCellIndex (15, 28, Map(11 -> 3, 13 -> 1))
+  val rootIdx: H3 = H3.createCellIndex (15, 28, Map(11 -> 3, 13 -> 1))
 
   "A tree level" should "accumulate all values accumulate by its sub-trees" in:
     updates.forall (x => x.idx.isValid) should be (true)
 
-    instance.isValidCell (rootIdx) should be (true)
+    rootIdx.isValid should be (true)
 
     val maybeTree = H3Tree.empty [Int, Int] (12, 15, rootIdx)
 
@@ -185,7 +184,7 @@ class H3TreeTests extends AnyFlatSpec with should.Matchers:
 
     val cannotInsert =
       // NOTE - this is a level 11 index - all indices >= 12 are masked out with 7.
-      H3.createCellIndex (11, 28, Map(11 -> 6))
+      H3.createCellIndex (11, 28, Map (11 -> 6))
 
     for
       tree <- maybeTree
