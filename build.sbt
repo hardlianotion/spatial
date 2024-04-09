@@ -1,4 +1,4 @@
-ThisBuild / scalaVersion := "3.3.0"
+ThisBuild / scalaVersion := "3.4.0"
 
 resolvers ++= Seq (
   "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/releases",
