@@ -11,7 +11,7 @@ class H3TreeTests extends AnyFlatSpec with should.Matchers:
   val root: H3 = H3.createCellIndex (13, 0, Map (13 -> 6))
 
   "A tree that is a leaf" should "have depth 0" in:
-    val maybeTree = H3Tree.fromRoot (root, 0, Leaf (2))
+    val maybeTree = H3Tree.fromRoot (root, 0, TreeNode.Leaf (2))
     maybeTree.isRight should be (true)
 
     for

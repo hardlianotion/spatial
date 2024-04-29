@@ -4,22 +4,9 @@ import scala.annotation.tailrec
 
 import spatial.math.Aggregable
 
-
-sealed trait TreeNode [T]:
-  def setData (data: T): Unit
-  def data: T
-
-case class Leaf [T] (var data: T) extends TreeNode [T]:
-  def setData (data: T): Unit =
-    this.data = data
-
-case class Node [T] private [hex] (var data: T, children: Array [TreeNode [T]]) extends TreeNode [T]:
-  def setData (data: T): Unit =
-    this.data = data
-
-object Node:
-  def unapply [T] (node: Node [T]): Some [(T, Array [TreeNode [T]])] =
-    Some ((node.data, node.children))
+enum TreeNode [T]:
+  case Leaf (var data: T) extends TreeNode [T]
+  case Node (var data: T, children: Array [TreeNode [T]]) extends TreeNode [T]
 
 /**
  * H3Tree - a hex-tree used for aggregating summary statistics for location data
@@ -44,6 +31,17 @@ object H3TreeError:
   case class AggregationError [A, T] (tree: H3Tree [A], data: Seq [(H3, T)]) extends H3TreeError
 
 object H3Tree:
+
+  extension [T] (node: TreeNode [T])
+    def data: T =
+      node match
+        case TreeNode.Leaf (data) => data
+        case TreeNode.Node (data, _) => data 
+    def setData (data: T): Unit =
+      node match
+        case node: TreeNode.Leaf [T] => node.data = data
+        case node: TreeNode.Node [T] => node.data = data
+
   val maxTreeDepth = 15
   val minTreeDepth = 0
 
@@ -75,8 +73,8 @@ object H3Tree:
   def depth [T] (node: TreeNode [T]): Int =
     def impl (node: TreeNode [T]): Int =
       node match
-        case Leaf (_) => 0
-        case Node (_, cs) =>  1 + impl (cs (0))
+        case TreeNode.Leaf (_) => 0
+        case TreeNode.Node (_, cs) =>  1 + impl (cs (0))
 
     impl (node)
 
@@ -132,8 +130,8 @@ object H3Tree:
     else
       def impl (depth: Int): TreeNode [A] =
         depth match
-          case 0 => Leaf (agg.empty)
-          case n => Node (agg.empty, (0 to 6).map (_ => impl (n - 1)).toArray)
+          case 0 => TreeNode.Leaf (agg.empty)
+          case n => TreeNode.Node (agg.empty, (0 to 6).map (_ => impl (n - 1)).toArray)
 
       val depth = leafRes - rootRes
       val root = impl (depth)
@@ -173,7 +171,7 @@ object H3Tree:
   private [hex] def subNode [T] (tree: H3Tree [T], index: H3, level: Int): Option [TreeNode [T]] =
     val resolution = tree.rootRes + level
     if contains (tree, index) && resolution >= 0 && resolution <= H3.maxRes then
-      val node = processNodesToRes [T] (_ => ()) (tree.root, tree.rootRes, index, resolution)
+      val node = processNodesToRes [T] (x => x) (tree.root, tree.rootRes, index, resolution)
       Some (node)
     else
       None
@@ -194,14 +192,14 @@ object H3Tree:
   private def processNodesToRes [T] (process: TreeNode [T] => Unit)
     (currentNode: TreeNode[T], currentRes: Int, index: H3, targetRes: Int): TreeNode[T] =
     currentNode match
-      case node @ Node (_, children) =>
+      case node @ TreeNode.Node (_, children) =>
         process (node)
         if targetRes != currentRes then
           val childLocalIndex = index.local (currentRes + 1)
           processNodesToRes (process) (children (childLocalIndex), currentRes + 1, index, targetRes)
         else
           node
-      case leaf: Leaf [T] =>
+      case leaf: TreeNode.Leaf [T] =>
         process (leaf)
         leaf
 
@@ -215,7 +213,9 @@ object H3Tree:
    */
 
   def get [T] (tree: H3Tree [T], index: H3, level: Int): Option [T] =
-    subNode (tree, index, level).map (_.data)
+    subNode (tree, index, level).map:
+      case TreeNode.Leaf (data) => data
+      case TreeNode.Node (data, _) => data
 
   /**
    * get - this version uses the index's own level to query the tree.
@@ -225,7 +225,7 @@ object H3Tree:
    * @return - data at index
    */
   def get [T] (tree: H3Tree [T], index: H3): Option [T] =
-    subNode (tree, index, level (tree, index)).map (_.data)
+    get (tree, index, level (tree, index))
 
   /**
    * @param tree - tree to update
