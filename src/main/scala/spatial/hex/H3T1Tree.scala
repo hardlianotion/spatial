@@ -12,7 +12,7 @@ object Index:
     ???
 
 
-case class H3T1Tree [T] private [hex](address: Index, rootRes: Byte, leafRes: Byte, root: TreeNode [T])
+case class H3T1Tree [T] private [hex] (address: Index, rootRes: Byte, leafRes: Byte, root: TreeNode [T])
 
 /**
  * H3BinTree implementation shares the H3Tree structure, but packs the spare bit on each tree level.

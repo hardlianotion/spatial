@@ -33,7 +33,11 @@ class H3Tests extends AnyFlatSpec with should.Matchers:
     assert (H3.unsafe ((14L << 52) + 15L).contains (H3.unsafe (12L)))
 
   "8f754e64992d6d8" should "be contained in hex 8e754e64992d6df" in:
-    assert (H3.safe (java.lang.Long.valueOf ("8e754e64992d6df", 16)).contains (H3.safe (java.lang.Long.valueOf ("8f754e64992d6d8", 16))))
+    for
+      encloser <- H3.safe (java.lang.Long.valueOf ("8e754e64992d6df", 16))
+      enclosed <- H3.safe (java.lang.Long.valueOf ("8f754e64992d6d8", 16))
+    yield
+      assert (encloser.contains (enclosed))
 
   "3L" should "localise to 3 at level 15" in:
     assert (H3.unsafe (3L).local (15) == 3)

@@ -11,10 +11,17 @@ lazy val instance: H3Core = H3Core.newInstance
 
 opaque type H3 = Long
 
+enum H3Error:
+  case CreationError (msg: String) extends H3Error
+  case IndexError (msg: String) extends H3Error
+
 object H3:
-  def safe (impl: Long): H3 =
-    assert (instance.isValidCell (impl))
-    impl
+  def safe (impl: Long): Either [H3Error, H3] =
+    if instance.isValidCell (impl) then
+      Right (unsafe (impl))
+    else
+      Left (H3Error.CreationError (s"Value $impl is not a valid H3 address."))
+
 
   def unsafe (impl: Long): H3 =
     impl
@@ -36,8 +43,11 @@ object H3:
   private lazy val zeroLocationOnly: H3 = allOnes & ~locationMask
   private lazy val zeroResOnly: H3 = allOnes & ~resMask
 
-  transparent inline def fromLatLng (latLng: LatLng, res: Int): H3 =
+  transparent inline def fromLatLng (latLng: LatLng, res: Int): Either [H3Error, H3] =
     H3.safe (instance.latLngToCell (latLng.lat, latLng.lng, res))
+
+  transparent inline def unsafeFromLatLng (latLng: LatLng, res: Int): H3 =
+    H3.unsafe (instance.latLngToCell (latLng.lat, latLng.lng, res))
 
   /**
    * binaryOnes - produces 2^n - 1 or n ones in binary
