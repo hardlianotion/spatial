@@ -53,7 +53,7 @@ object H3Tree:
    * @return - true if tree contains index, false otherwise
    */
   def contains [T] (tree: H3Tree [T], index: H3): Boolean =
-    tree.address.truncateToRes (tree.rootRes).contains (index)
+    tree.address.truncateToRes (tree.rootRes) contains index
 
   /**
    * returns the level of address relative to the root resolution
@@ -171,7 +171,7 @@ object H3Tree:
   private [hex] def subNode [T] (tree: H3Tree [T], index: H3, level: Int): Option [TreeNode [T]] =
     val resolution = tree.rootRes + level
     if contains (tree, index) && resolution >= 0 && resolution <= H3.maxRes then
-      val node = processNodesToRes [T] (x => x) (tree.root, tree.rootRes, index, resolution)
+      val node = processNodesToRes [T] (_ => ()) (tree.root, tree.rootRes, index, resolution)
       Some (node)
     else
       None

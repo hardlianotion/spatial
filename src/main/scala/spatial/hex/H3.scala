@@ -2,8 +2,6 @@ package spatial.hex
 
 import com.uber.h3core.util.LatLng
 import com.uber.h3core.{H3Core, LengthUnit}
-
-import scala.annotation.tailrec
 import scala.util.Random
 
 
@@ -31,13 +29,14 @@ object H3:
   lazy val maxRes = 15
 
   private lazy val allOnes: H3 = -1L
+  private lazy val childCount = 7
   private lazy val baseCellShift = 45
   private lazy val resShift = 52
   private lazy val cellModeShift = 59
   private lazy val cellModeMask: H3 = 1L << cellModeShift
   private lazy val locationMask: H3 = binaryOnes (52)
   private lazy val resMask: H3 = binaryOnes (4) << resShift
-  private lazy val baseCellMask: H3 = binaryOnes (7) << baseCellShift
+  private lazy val baseCellMask: H3 = binaryOnes (childCount) << baseCellShift
   private lazy val inBaseMask: H3 = binaryOnes (45)
   private lazy val zero: H3 = unset
   private lazy val zeroLocationOnly: H3 = allOnes & ~locationMask
@@ -64,19 +63,7 @@ object H3:
    * @return
    */
   transparent inline def treeNodeMask (res: Int): H3 =
-    H3.unsafe (7L << (3 * (maxRes - res)))
-
-  /**
-   * H3 index mode is hardcoded to 1 presently, as we have no applications
-   * other than containment.
-   *
-   * @param res      - cell resolution.  Takes values between h3MinRes-h3MaxRes.
-   * @param baseCell - which of the 121 base cells is specified.
-   * @param hex    - indexing to precisely locate a position within the H3 hierarchy.
-   * @return
-   */
-  transparent inline def createCellIndex (res: Int, baseCell: Int, hex: H3): H3 =
-    cellModeMask | (res.toLong << resShift) | (baseCell.toLong << baseCellShift) | hex
+    H3.unsafe (childCount.toLong << (3 * (maxRes - res)))
 
   /**
    * zeroBitCell - zero out parts of a H3 index
@@ -87,6 +74,18 @@ object H3:
    */
   transparent inline def zeroBitCell (res: Int, numBits: Int): H3 =
     ~bitCellMask (res, numBits)
+
+  /**
+   * H3 index mode is hardcoded to 1 presently, as we have no applications
+   * other than containment.
+   *
+   * @param res      - cell resolution.  Takes values between h3MinRes-h3MaxRes.
+   * @param baseCell - which of the 121 base cells is specified.
+   * @param hex      - indexing to precisely locate a position within the H3 hierarchy.
+   * @return
+   */
+  transparent inline def createCellIndex (res: Int, baseCell: Int, hex: H3): H3 =
+    cellModeMask | (res.toLong << resShift) | (baseCell.toLong << baseCellShift) | hex
 
   /**
    * H3 index mode is hardcoded to 1 presently, as we have no applications
@@ -106,7 +105,7 @@ object H3:
   private transparent inline def generateValidBase (fromRes: Int, toRes: Int): H3 =
     ((maxRes - toRes) until (maxRes - fromRes))
       .foldLeft (unset) { (agg, rhs) =>
-        agg | (Random.between (zero, 7L) << (3 * rhs))
+        agg | (Random.between (zero, childCount) << (3 * rhs))
       } | bitCellMask (toRes, 3)
 
   /**
@@ -195,6 +194,7 @@ object H3:
 
     transparent inline def binaryString: String =
       hex.toBinaryString
+
 
     transparent inline def or (rhs: H3): H3 =
       hex | rhs
