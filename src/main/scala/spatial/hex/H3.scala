@@ -195,7 +195,6 @@ object H3:
     transparent inline def binaryString: String =
       hex.toBinaryString
 
-
     transparent inline def or (rhs: H3): H3 =
       hex | rhs
 
